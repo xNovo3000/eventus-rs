@@ -5,15 +5,11 @@ use dotenvy::dotenv;
 use tracing::{info, debug, Level};
 use tracing_appender::non_blocking::WorkerGuard;
 
-pub mod dto;
-pub mod model;
-pub mod schema;
-
 pub struct EnvironmentVariables {
     pub database_url: String
 }
 
-pub fn init_logger() -> WorkerGuard {
+pub fn init_logger() -> Result<WorkerGuard, String> {
     // Get level based on build configuration
     let logger_level = if cfg!(debug_assertions) {
         Level::DEBUG
@@ -33,9 +29,10 @@ pub fn init_logger() -> WorkerGuard {
     tracing_subscriber::fmt()
         .with_writer(writer)
         .with_max_level(logger_level)
-        .init();
+        .try_init()
+        .map_err(|error| error.to_string())?;
     // Return the guard (must be dropped at the end of the main function)
-    worker_guard
+    Ok(worker_guard)
 }
 
 pub fn init_environment_variables() -> Result<EnvironmentVariables, String> {
