@@ -5,10 +5,6 @@ use dotenvy::dotenv;
 use tracing::{info, debug, Level};
 use tracing_appender::non_blocking::WorkerGuard;
 
-pub mod dto;
-pub mod model;
-pub mod schema;
-
 pub struct EnvironmentVariables {
     pub database_url: String
 }
