@@ -1,15 +1,14 @@
-use std::env;
+use std::error::Error;
 
+use config::{ConfigError, FileFormat, File, Config};
+use diesel::ConnectionError;
 use diesel_async::{AsyncPgConnection, AsyncConnection};
-use dotenvy::dotenv;
-use tracing::{info, debug, Level};
+use tracing::Level;
 use tracing_appender::non_blocking::WorkerGuard;
 
-pub struct EnvironmentVariables {
-    pub database_url: String
-}
+/* LOGGER */
 
-pub fn init_logger() -> WorkerGuard {
+pub fn init_logger() -> Result<WorkerGuard, Box<dyn Error + Send + Sync + 'static>> {
     // Get level based on build configuration
     let logger_level = if cfg!(debug_assertions) {
         Level::DEBUG
@@ -25,28 +24,49 @@ pub fn init_logger() -> WorkerGuard {
         let file_appender = tracing_appender::rolling::daily("logs", "eventus.log");
         tracing_appender::non_blocking(file_appender)
     };
-    // Generate subscriber
+    // Generate subscriber and return the guard if ok
     tracing_subscriber::fmt()
         .with_writer(writer)
         .with_max_level(logger_level)
-        .init();
-    // Return the guard (must be dropped at the end of the main function)
-    worker_guard
+        .try_init()
+        .map(|_| worker_guard)
 }
 
-pub fn init_environment_variables() -> EnvironmentVariables {
-    // Load .env file if exists
-    match dotenv() {
-        Ok(_) => debug!("Loaded .env file"),
-        Err(_) => info!(".env file not found")
+/* CONFIG */
+
+#[derive(Clone, serde::Deserialize)]
+pub struct AppConfiguration {
+    pub database: Database
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct Database {
+    pub postgres: Postgres
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct Postgres {
+    pub url: String
+}
+
+pub fn load_configuration_files() -> Result<AppConfiguration, ConfigError> {
+    // Create config builder
+    let mut config_builder = Config::builder()
+        .add_source(File::new("config/application.yaml", FileFormat::Yaml));
+    // Override production
+    if !cfg!(debug_assertions) {
+        config_builder = config_builder.add_source(File::new("config/application-prod.yaml", FileFormat::Yaml));
     }
-    // Try to load EnvironmentVariables struct
-    EnvironmentVariables {
-        database_url: env::var("DATABASE_URL").expect("Cannot load DATABASE_URL")
+    // Build
+    match config_builder.build() {
+        Ok(config) => config.try_deserialize::<AppConfiguration>(),
+        Err(config_error) => Err(config_error),
     }
 }
 
-pub async fn init_database_connection(database_url: &str) -> impl AsyncConnection {
+/* DATABASE CONNECTIONS */
+
+pub async fn init_database_connection(database_url: &str) -> Result<impl AsyncConnection, ConnectionError> {
+    // Connecto to the database
     AsyncPgConnection::establish(database_url).await
-        .expect("Cannot connect to the database")
 }
