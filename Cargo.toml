@@ -3,6 +3,22 @@ name = "eventus-rs"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+askama = "0.12.1"  # HTML templating engine
+axum = "0.7.4"  # Web framework
+axum-login = "0.13.1"  # Axum session add-on
+bcrypt = "0.15.0"  # BCrypt implementation
+chrono = "0.4.24"  # Extended date and time
+config = "0.14.0"  # Externalized configuration loader
+diesel = { version = "2.1.4", features = ["chrono"] }  # ORM
+diesel-async = { version = "0.4.1", features = ["postgres", "deadpool"] }  # ORM async add-on
+serde = { version = "1.0.196", features = ["derive"] }  # Serialization
+tokio = { version = "1.36.0", features = ["full"] }  # Runtime
+tower-http = { version = "0.5.1", features = ["fs", "trace", "compression-gzip"] }  # Web utilities
+tracing = "0.1.40"  # Logging
+tracing-appender = "0.2.3"  # Logging
+tracing-subscriber = "0.3.18"  # Logging
+
+[profile.release]
+strip = true
+lto = true
