@@ -1,23 +1,23 @@
-use std::error::Error;
+pub mod user {
+    
+    use std::error::Error;
 
-use diesel::prelude::*;
-use diesel_async::{AsyncConnection, AsyncPgConnection};
+    use diesel::prelude::*;
+    use diesel_async::RunQueryDsl;
+    use diesel_async::AsyncPgConnection;
 
-use super::model::User;
+    use crate::api::model::User;
+    use crate::api::schema::eventus::user_::dsl::*;
 
-pub trait UserRepository<C>
-    where C : AsyncConnection
-{
-    async fn load_by_username(connection: &mut C, username: &str) -> Result<Option<User>, Box<dyn Error>>;
-}
-
-#[derive(Debug)]
-pub struct UserRepositoryPostgres;
-
-impl UserRepository<AsyncPgConnection> for UserRepositoryPostgres {
-
-    async fn load_by_username(connection: &mut AsyncPgConnection, username: &str) -> Result<Option<User>, Box<dyn Error>> {
-        Ok(None)
+    pub async fn load_by_username(connection: &mut AsyncPgConnection, username_: &str) -> Result<Option<User>, Box<dyn Error>> {
+        // Read user
+        let maybe_user: Option<User> = user_
+            .filter(username.eq(username_))
+            .select(User::as_select())
+            .first(connection).await
+            .optional()?;
+        // Success
+        Ok(maybe_user)
     }
 
 }

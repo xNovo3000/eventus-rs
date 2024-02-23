@@ -2,7 +2,9 @@ use std::error::Error;
 
 use diesel_async::{pooled_connection::{deadpool::Pool, AsyncDieselConnectionManager}, AsyncPgConnection};
 
-pub async fn create_database_pool(connection_string: &str) -> Result<Pool<AsyncPgConnection>, Box<dyn Error>> {
+pub type AsyncPgConnectionPool = Pool<AsyncPgConnection>;
+
+pub async fn create_database_pool(connection_string: &str) -> Result<AsyncPgConnectionPool, Box<dyn Error>> {
     // Configure connection
     let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new(connection_string);
     // Create pool
