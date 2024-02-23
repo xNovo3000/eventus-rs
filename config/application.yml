@@ -1,12 +1,6 @@
 datasource:
-  postgres:
-    hostname: localhost
-    port: 5432
-    user: postgres
-    password: postgres
-    database: eventus
+  postgres: postgres://postgres:postgres@localhost:5432/eventus
 logger:
   level: debug
   output:
     mode: Console
-profile: dev

@@ -2,7 +2,7 @@ use chrono::{DateTime, Local};
 use diesel::prelude::*;
 
 #[derive(Queryable, Selectable, Identifiable, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::eventus::user_)]
+#[diesel(table_name = crate::api::schema::eventus::user_)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub id: i32,
@@ -12,7 +12,7 @@ pub struct User {
 }
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::eventus::authority)]
+#[diesel(table_name = crate::api::schema::eventus::authority)]
 #[diesel(belongs_to(User))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Authority {
@@ -22,7 +22,7 @@ pub struct Authority {
 }
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::eventus::event_)]
+#[diesel(table_name = crate::api::schema::eventus::event_)]
 #[diesel(belongs_to(User, foreign_key = creator))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Event {
@@ -38,7 +38,7 @@ pub struct Event {
 }
 
 #[derive(Queryable, Selectable, Identifiable, Associations, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::eventus::subscription)]
+#[diesel(table_name = crate::api::schema::eventus::subscription)]
 #[diesel(belongs_to(User))]
 #[diesel(belongs_to(Event))]
 #[diesel(check_for_backend(diesel::pg::Pg))]

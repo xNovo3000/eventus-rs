@@ -1,4 +1,4 @@
-drop table if exists eventus.subscription;
-drop table if exists eventus.event_;
-drop table if exists eventus.authority;
-drop table if exists eventus.user_;
+drop table eventus.subscription;
+drop table eventus.event_;
+drop table eventus.authority;
+drop table eventus.user_;
