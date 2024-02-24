@@ -6,15 +6,15 @@ use tracing_appender::non_blocking::WorkerGuard;
 use super::config::{AppConfigurationLogger, AppConfigurationLoggerOutput};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct InvalidAppConfigurationLogger(String);
+pub struct InvalidLoggerLevelError(String);
 
-impl fmt::Display for InvalidAppConfigurationLogger {
+impl fmt::Display for InvalidLoggerLevelError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} is not a valid logger level", &self.0)
     }
 }
 
-impl Error for InvalidAppConfigurationLogger {}
+impl Error for InvalidLoggerLevelError {}
 
 pub fn init(config: &AppConfigurationLogger) -> Result<WorkerGuard, Box<dyn Error>> {
     // Get logger level
@@ -24,7 +24,7 @@ pub fn init(config: &AppConfigurationLogger) -> Result<WorkerGuard, Box<dyn Erro
         "info" => Level::INFO,
         "debug" => Level::DEBUG,
         "trace" => Level::TRACE,
-        value => return Err(Box::new(InvalidAppConfigurationLogger(value.to_string())))
+        value => return Err(Box::new(InvalidLoggerLevelError(value.to_string())))
     };
     // Generate writer and worker guard
     let (logger_writer, logger_worker_guard) = match &config.output {

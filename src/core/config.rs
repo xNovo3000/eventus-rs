@@ -8,7 +8,8 @@ const CONFIGURATION_FILE_PATH: &str = "config/application";
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct AppConfiguration {
     pub datasource: AppConfigurationDatasource,
-    pub logger: AppConfigurationLogger
+    pub logger: AppConfigurationLogger,
+    pub server: AppConfigurationServer
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -30,6 +31,11 @@ pub enum AppConfigurationLoggerOutput {
         path: String,
         file_name: String
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+pub struct AppConfigurationServer {
+    pub port: u16
 }
 
 pub fn load() -> Result<AppConfiguration, Box<dyn Error>> {

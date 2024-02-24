@@ -4,3 +4,5 @@ logger:
   level: debug
   output:
     mode: Console
+server:
+  port: 8080
